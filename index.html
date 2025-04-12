@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>wanzofc black</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      font-family: 'Roboto', sans-serif;
+    }
+    input[type="file"], select {
+      padding: 10px;
+      font-size: 1em;
+      margin: 15px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #45a049;
+      transform: scale(1.1);
+    }
+    .output {
+      margin-top: 20px;
+    }
+    .output img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    .fab, .fas {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-image"></i> wanzofc black</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="image" required />
+      <br>
+      <select name="filter" required>
+        <option value="hitam">Hitam</option>
+        <option value="coklat">Coklat</option>
+        <option value="nerd">Nerd</option>
+        <option value="piggy">Piggy</option>
+        <option value="carbon">Carbon</option>
+        <option value="botak">Botak</option>
+      </select>
+      <br>
+      <button type="submit"><i class="fas fa-upload"></i> Upload & Proses</button>
+    </form>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const response = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      const outputDiv = document.getElementById('output');
+
+      if (response.ok) {
+        outputDiv.innerHTML = `<p>Gambar berhasil diproses!</p><img src="${result.imageUrl}" alt="Hitam Image" />`;
+      } else {
+        outputDiv.innerHTML = `<p>Error: ${result.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
