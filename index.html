@@ -1,119 +1,240 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Login Telegram - Cyber Wanzofc</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    /* Reset dan Font */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: radial-gradient(circle at top left, #0f0c29, #302b63, #24243e);
-      color: #00ffe0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
-    }
+    <meta charset="UTF-8">
+    <title>Wanzofc Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        /* ... (Gaya CSS yang sama seperti sebelumnya) ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Container Login */
-    .login-box {
-      background: rgba(0, 255, 255, 0.05);
-      border: 2px solid rgba(0, 255, 255, 0.2);
-      backdrop-filter: blur(20px);
-      padding: 50px 30px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 0 30px rgba(0,255,255,0.3);
-      position: relative;
-      z-index: 2;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #434343, #000000);
+            color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding-top: 20px;
+        }
 
-    .login-box h1 {
-      font-size: 28px;
-      margin-bottom: 30px;
-      color: #00ffe0;
-      text-shadow: 0 0 10px #00ffe0;
-    }
+        .login-box {
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
 
-    /* Efek animasi partikel */
-    .particles {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0; left: 0;
-      overflow: hidden;
-      z-index: 0;
-    }
+        .login-box h1 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #ddd;
+            text-shadow: 0 0 8px #aaa;
+        }
 
-    .particles span {
-      position: absolute;
-      display: block;
-      width: 20px;
-      height: 20px;
-      background: #00ffe0;
-      opacity: 0.3;
-      border-radius: 50%;
-      animation: move 10s linear infinite;
-    }
+        .dashboard {
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: left;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            color: #eee;
+            display: none;
+        }
 
-    @keyframes move {
-      0% {
-        transform: translateY(0) scale(1);
-      }
-      100% {
-        transform: translateY(-100vh) scale(0.5);
-        opacity: 0;
-      }
-    }
+        .dashboard h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #ddd;
+            text-shadow: 0 0 8px #aaa;
+        }
 
-    .particles span:nth-child(odd) {
-      background: #00fff0;
-    }
-  </style>
+        .dashboard p {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        #logout-button {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        #logout-button:hover {
+            background-color: #b71c1c;
+        }
+
+        /* Gaya tambahan untuk fitur yang ditambahkan */
+        .dashboard ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 20px;
+        }
+
+        .dashboard li {
+            margin-bottom: 8px;
+        }
+
+        .dashboard a {
+            color: #bbdefb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .dashboard a:hover {
+            color: #64b5f6;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Partikel animasi -->
-  <div class="particles">
-    <!-- Generate 30 partikel -->
-    <script>
-      for(let i=0; i<30; i++) {
-        let s = document.createElement('span');
-        s.style.left = Math.random() * 100 + '%';
-        s.style.top = Math.random() * 100 + '%';
-        s.style.width = s.style.height = Math.random() * 10 + 10 + 'px';
-        s.style.animationDuration = (Math.random() * 5 + 5) + 's';
-        document.querySelector('.particles').appendChild(s);
-      }
-    </script>
-  </div>
-
-  <!-- Kotak login -->
-  <div class="login-box">
-    <h1>Masuk dengan Telegram</h1>
+<div class="login-box">
+    <h1>Login Wanzofc</h1>
     <script async src="https://telegram.org/js/telegram-widget.js?22"
-      data-telegram-login="Cyber_wanzofc_bot"
-      data-size="large"
-      data-onauth="onTelegramAuth(user)"
-      data-request-access="write">
+            data-telegram-login="NamaBotAnda"
+            data-size="large"
+            data-onauth="onTelegramAuth(user)"
+            data-request-access="write">
     </script>
-  </div>
+</div>
 
-  <!-- Script login -->
-  <script>
+<div class="dashboard" id="dashboard">
+    <h2>Selamat Datang!</h2>
+    <p><b>Nama Depan:</b> <span id="user-first-name"></span></p>
+    <p><b>Nama Belakang:</b> <span id="user-last-name"></span></p>
+    <p><b>Username:</b> <span id="user-username"></span></p>
+    <p><b>ID Telegram:</b> <span id="user-id"></span></p>
+
+    <!-- Fitur Tambahan  -->
+    <h3>Fitur Tambahan (Integrasi Lebih Lanjut)</h3>
+    <ul>
+        <li>
+            <a href="#" id="link-to-telegram-group">Gabung Grup Telegram Komunitas</a>
+        </li>
+        <li>
+            <a href="#" id="link-to-bot-interaction">Berinteraksi dengan Bot</a>
+        </li>
+        <li>
+            <a href="#" id="link-to-profile-settings">Pengaturan Profil</a>
+        </li>
+    </ul>
+
+    <button id="logout-button">Logout</button>
+</div>
+
+<script>
+    const botToken = '7732562102:AAEH2ydv6d4q3AamrGoZaoo6ZdFcghQcf-A'; // **JANGAN SIMPAN TOKEN DI SINI DI PRODUKSI**
+
     function onTelegramAuth(user) {
-      alert('Login berhasil sebagai: ' + user.first_name + ' (@' + user.username + ')');
-      console.log(user);
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('user-first-name').textContent = user.first_name;
+        document.getElementById('user-last-name').textContent = user.last_name || 'Tidak Ada';
+        document.getElementById('user-username').textContent = user.username || 'Tidak Ada';
+        document.getElementById('user-id').textContent = user.id;
+        document.querySelector('.login-box').style.display = 'none';
+
+        localStorage.setItem('telegramUser', JSON.stringify(user));
+
+        // Kirim data user ke server (untuk diproses oleh bot)
+        sendUserDataToServer(user);
+
     }
-  </script>
+
+    document.getElementById('logout-button').addEventListener('click', function () {
+        localStorage.removeItem('telegramUser');
+        document.querySelector('.login-box').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+        location.reload();
+    });
+
+    window.onload = function () {
+        const storedUser = localStorage.getItem('telegramUser');
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            onTelegramAuth(user);
+        }
+    };
+
+    // --- Fungsi-fungsi Tambahan ---
+
+    function sendUserDataToServer(user) {
+        fetch('/api/telegram-login', { // Endpoint server yang akan dibuat
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(user)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal mengirim data ke server.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data berhasil dikirim ke server:', data);
+                // Handle respon dari server (misalnya, pesan sukses)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error (misalnya, tampilkan pesan error kepada pengguna)
+            });
+    }
+
+    // Fungsi untuk mengarahkan ke grup Telegram (perlu URL grup yang benar)
+    document.getElementById('link-to-telegram-group').addEventListener('click', function(event) {
+        event.preventDefault();
+        const telegramGroupUrl = "https://t.me/ContohGrupTelegram"; // Ganti dengan URL grup Telegram Anda
+        window.open(telegramGroupUrl, '_blank');
+    });
+
+    // Placeholder untuk interaksi bot (memerlukan logika server-side)
+    document.getElementById('link-to-bot-interaction').addEventListener('click', function(event) {
+        event.preventDefault();
+        // Kirim permintaan ke server untuk memulai interaksi dengan bot
+        fetch('/api/start-bot-interaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId: localStorage.getItem('telegramUser') ? JSON.parse(localStorage.getItem('telegramUser')).id : null })
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error("Gagal memulai interaksi bot:", error));
+    });
+
+    // Placeholder untuk pengaturan profil (memerlukan logika server-side dan halaman pengaturan)
+    document.getElementById('link-to-profile-settings').addEventListener('click', function(event) {
+        event.preventDefault();
+        // Arahkan pengguna ke halaman pengaturan profil (yang akan berkomunikasi dengan server)
+        window.location.href = '/profile-settings'; // Ganti dengan URL yang benar
+    });
+
+</script>
 
 </body>
 </html>
