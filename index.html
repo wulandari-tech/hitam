@@ -148,12 +148,35 @@
             background-color: #37474f;
         }
 
-        /* Loading Indicator */
-        .loading-indicator {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #64ffda;
+       /* Loading Bar Indicator */
+        .loading-bar-container {
+            width: 100%;
+            background-color: #37474f;
+            border-radius: 8px;
+            height: 20px;
+            margin-top: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-bar {
+            background-color: #64ffda; /* Teal loading bar */
+            height: 100%;
+            width: 0; /* Initial width */
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .loading-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 0.9em;
         }
 
         /* QR Code Styles */
@@ -183,6 +206,28 @@
 
         .download-button:hover {
             background-color: #42a5f5;
+        }
+
+         /* Copy Button Styles */
+        .copy-button {
+            background-color: #64b5f6;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .copy-button:hover {
+            background-color: #42a5f5;
+        }
+
+        .number-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
         /* Responsive adjustments */
@@ -257,7 +302,10 @@
         <!-- Product List Section -->
         <h2>Product List</h2>
         <div class="product-list">
-            <div class="loading-indicator" id="productListLoading">Loading Products...</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="productListLoadingBar"></div>
+                <div class="loading-percentage" id="productListLoadingPercentage">0%</div>
+            </div>
             <table class="product-table" id="productListTable" style="display:none;">
                 <thead>
                     <tr>
@@ -341,6 +389,17 @@
                 resultText += `Total yang Didapatkan: ${data.get_balance}<br>`;
                 resultText += `Status: ${data.status}<br>`;
 
+                 // Check if it's a DANA, OVO, LINKAJA, or SHOPEEPAY deposit
+                const danaMethods = ['DANA', 'OVO', 'LINKAJA', 'SHOPEEPAY'];
+
+                if (danaMethods.includes(method.toUpperCase())) {
+                    const phoneNumber = '0895402567224'; // Replace with actual phone number
+                    resultText += `<div class="number-container">
+                                        Phone Number: ${phoneNumber}
+                                        <button class="copy-button" onclick="copyToClipboard('${phoneNumber}')">Copy</button>
+                                    </div>`;
+                }
+
                 // QR Code Integration
                 if (data.qr_image_url) {
                     resultText += `<div class="qr-code-container">
@@ -359,8 +418,20 @@
             }
         }
 
-         // Function to download the QR code
-         async function downloadQRCode(imageUrl) {
+        // Function to copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    alert('Phone number copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Failed to copy text: ', err);
+                    alert('Failed to copy phone number.');
+                });
+        }
+
+        // Function to download the QR code
+        async function downloadQRCode(imageUrl) {
             try {
                 const response = await fetch(imageUrl);
                 const blob = await response.blob(); // Get the image as a blob
@@ -523,20 +594,37 @@
             }
         }
 
-        // --- Product List Functions ---
+       // --- Product List Functions ---
         async function loadProductList() {
             const productListTable = document.getElementById('productListTable');
-            const productListLoading = document.getElementById('productListLoading');
+            const productListLoadingBar = document.getElementById('productListLoadingBar');
+            const productListLoadingPercentage = document.getElementById('productListLoadingPercentage');
 
-            productListTable.style.display = 'none';  // Hide table initially
-            productListLoading.style.display = 'block'; // Show loading indicator
+            productListTable.style.display = 'none'; // Hide table initially
+            let percentage = 0;
 
             try {
                 const response = await fetch('/api/products');
-                if (!response.ok) {
-                    throw new Error('Failed to load product list');
+                const totalSize = response.headers.get('Content-Length');
+                const reader = response.body.getReader();
+                let receivedLength = 0;
+                let chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    chunks.push(value);
+                    receivedLength += value.length;
+
+                    // Calculate and update the loading percentage
+                    percentage = totalSize ? (receivedLength / totalSize * 100).toFixed(0) : 100;
+                    productListLoadingBar.style.width = percentage + '%';
+                    productListLoadingPercentage.innerText = percentage + '%';
                 }
-                const products = await response.json();
+
+                const productsText = new TextDecoder().decode(new Uint8Array(chunks.flat()));
+                const products = JSON.parse(productsText);
 
                 const tableBody = productListTable.querySelector('tbody');
                 tableBody.innerHTML = ''; // Clear existing rows
@@ -551,15 +639,26 @@
                     row.insertCell().textContent = product.code;
                 });
 
-                productListLoading.style.display = 'none'; // Hide loading indicator
                 productListTable.style.display = 'table'; // Show the table
+                percentage = 100;
+                productListLoadingBar.style.width = percentage + '%';
+                productListLoadingPercentage.innerText = percentage + '%';
 
             } catch (error) {
                 console.error('Error loading product list:', error);
                 document.getElementById('errorDisplay').textContent = "Failed to load product list. Please check the server.";
-                productListLoading.style.display = 'none'; // Hide loading indicator even on error
+                 percentage = 0;
+                productListLoadingBar.style.width = percentage + '%';
+                productListLoadingPercentage.innerText = percentage + '%';
+
+            } finally {
+                setTimeout(() => {
+                  productListLoadingBar.style.width = 0;
+                  productListLoadingPercentage.innerText = "0%";
+                }, 500); // Reset after 0.5 seconds
             }
         }
+
     </script>
 </body>
 </html>
