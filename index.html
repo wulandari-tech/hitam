@@ -30,13 +30,6 @@
             margin-bottom: 20px;
         }
 
-        .balance {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-            color: #64ffda; /* Teal accent */
-        }
-
         h2 {
             color: #bb86fc;
             margin-top: 30px;
@@ -155,6 +148,43 @@
             background-color: #37474f;
         }
 
+        /* Loading Indicator */
+        .loading-indicator {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #64ffda;
+        }
+
+        /* QR Code Styles */
+        .qr-code-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .qr-code-image {
+            max-width: 200px;
+            border: 1px solid #37474f;
+            border-radius: 8px;
+        }
+
+        .download-button {
+            background-color: #64b5f6; /* Light blue download button */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .download-button:hover {
+            background-color: #42a5f5;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 480px) {
             .container {
@@ -177,7 +207,6 @@
     <div class="container">
         <a href="#" class="back-button">← Back</a> <!-- Back button -->
         <h1>PAYMU-WANZOFC</h1>
-        <div class="balance">Balance: Rp 373</div>
 
         <!-- Deposit Section -->
         <h2>Make a Deposit</h2>
@@ -228,7 +257,8 @@
         <!-- Product List Section -->
         <h2>Product List</h2>
         <div class="product-list">
-            <table class="product-table" id="productListTable">
+            <div class="loading-indicator" id="productListLoading">Loading Products...</div>
+            <table class="product-table" id="productListTable" style="display:none;">
                 <thead>
                     <tr>
                         <th>Name</th>
@@ -310,6 +340,15 @@
                 resultText += `Fee: ${data.fee}<br>`;
                 resultText += `Total yang Didapatkan: ${data.get_balance}<br>`;
                 resultText += `Status: ${data.status}<br>`;
+
+                // QR Code Integration
+                if (data.qr_image_url) {
+                    resultText += `<div class="qr-code-container">
+                                        <img src="${data.qr_image_url}" alt="QR Code" class="qr-code-image">
+                                        <br>
+                                        <a href="${data.qr_image_url}" class="download-button" download="qris_code.png">Download QRIS</a>
+                                    </div>`;
+                }
 
                 resultDiv.innerHTML = resultText;
 
@@ -467,6 +506,12 @@
 
         // --- Product List Functions ---
         async function loadProductList() {
+            const productListTable = document.getElementById('productListTable');
+            const productListLoading = document.getElementById('productListLoading');
+
+            productListTable.style.display = 'none';  // Hide table initially
+            productListLoading.style.display = 'block'; // Show loading indicator
+
             try {
                 const response = await fetch('/api/products');
                 if (!response.ok) {
@@ -474,7 +519,7 @@
                 }
                 const products = await response.json();
 
-                const tableBody = document.getElementById('productListTable').querySelector('tbody');
+                const tableBody = productListTable.querySelector('tbody');
                 tableBody.innerHTML = ''; // Clear existing rows
 
                 products.forEach(product => {
@@ -487,9 +532,13 @@
                     row.insertCell().textContent = product.code;
                 });
 
+                productListLoading.style.display = 'none'; // Hide loading indicator
+                productListTable.style.display = 'table'; // Show the table
+
             } catch (error) {
                 console.error('Error loading product list:', error);
                 document.getElementById('errorDisplay').textContent = "Failed to load product list. Please check the server.";
+                productListLoading.style.display = 'none'; // Hide loading indicator even on error
             }
         }
     </script>
