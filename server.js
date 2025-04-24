@@ -1,91 +1,208 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const TelegramBot = require('node-telegram-bot-api');
-const fs = require('fs');
 const path = require('path');
+const fetch = require('node-fetch');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Middleware untuk memproses body permintaan sebagai JSON
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
 
-// **INI SANGAT PENTING: LOAD BOT TOKEN DARI ENVIRONMENT VARIABLE atau FILE TERPISAH!**
-// JANGAN PERNAH HARDCODE BOT TOKEN DI SINI
-const botToken = process.env.TELEGRAM_BOT_TOKEN || (() => {
-  try {
-    return fs.readFileSync('bot_token.txt', 'utf8').trim();
-  } catch (err) {
-    console.error("Error: Tidak dapat menemukan bot_token.txt atau variabel lingkungan TELEGRAM_BOT_TOKEN. Pastikan salah satunya sudah diatur.");
-    process.exit(1); // Keluar dari aplikasi jika token tidak ditemukan
-  }
-})();
+// Replace with your actual API_KEY and DANA_NUMBER
+const API_KEY = 'sk-u9di3e6xidkwqe'; // Replace with a valid API key
+const DANA_NUMBER = '0895402567224';
 
-// Buat bot Telegram
-const bot = new TelegramBot(botToken, {polling: false}); // Polling dinonaktifkan karena kita akan menggunakan webhook (lebih disarankan)
-
-// Endpoint untuk menerima data login Telegram dari client
-app.post('/api/telegram-login', (req, res) => {
-    const user = req.body;
-    console.log('Data login Telegram diterima:', user);
-
-    // **Lakukan validasi data di sini!** Pastikan data sesuai dengan yang diharapkan
-
-    // **SIMPAN DATA USER KE DATABASE!** Jangan hanya log ke konsol
-
-    // **Kirim pesan selamat datang ke user (gunakan fungsi terpisah!)**
-    sendWelcomeMessage(user.id, user.first_name, user.username);
-
-    res.json({ message: 'Data berhasil diterima dan diproses.' });
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Endpoint untuk memulai interaksi dengan bot (contoh)
-app.post('/api/start-bot-interaction', (req, res) => {
-    const userId = req.body.userId;
+// --- API Endpoints ---
+app.get('/api/depositMethods', async (req, res) => {
+    try {
+        const depositMethods = await getDepositMethods();
+        if (!depositMethods || depositMethods.status !== 'success') {
+            return res.status(500).json({ error: 'Failed to fetch deposit methods.' });
+        }
+        res.json(depositMethods.data);
+    } catch (error) {
+        console.error('Error fetching deposit methods:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
-    if (!userId) {
-        return res.status(400).json({ error: "User ID tidak valid." });
+app.post('/api/createDeposit', async (req, res) => {
+    const { nominal, method } = req.body;
+
+    if (!nominal || !method) {
+        return res.status(400).json({ error: 'Nominal and Method are required.' });
     }
 
-    // **Lakukan logika untuk memulai interaksi dengan bot di sini**
-    // Misalnya, kirim pesan ke user untuk memulai percakapan
-    bot.sendMessage(userId, "Halo! Selamat datang di bot Wanzofc. Ketik /help untuk melihat perintah yang tersedia.");
-
-    res.json({ message: "Interaksi bot dimulai untuk user ID: " + userId });
+    try {
+        const deposit = await createDeposit(nominal, method);
+        if (!deposit || deposit.status !== 'success') {
+            return res.status(500).json({ error: 'Failed to create deposit.' });
+        }
+        res.json(deposit.data);
+    } catch (error) {
+        console.error('Error creating deposit:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
 });
 
-// Endpoint untuk halaman pengaturan profil
-app.get('/profile-settings', (req, res) => {
-     res.send("Halaman pengaturan profil (akan diimplementasikan)");
+app.get('/api/transferMethods', async (req, res) => {
+    try {
+        const transferMethods = await getTransferMethods();
+        if (!transferMethods || !transferMethods.data) {
+            return res.status(500).json({ error: 'Failed to fetch transfer methods.' });
+        }
+        res.json(transferMethods.data);
+    } catch (error) {
+        console.error('Error fetching transfer methods:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
-// Fungsi untuk mengirim pesan selamat datang (KEAMANAN: Jangan simpan logika ini di client!)
-function sendWelcomeMessage(chatId, firstName, username) {
-    const message = `Selamat datang, ${firstName}! Terima kasih telah login melalui Telegram. Username Anda: @${username}`;
-    bot.sendMessage(chatId, message)
-        .then(() => console.log(`Pesan selamat datang terkirim ke chat ID: ${chatId}`))
-        .catch(error => console.error("Gagal mengirim pesan selamat datang:", error));
+app.post('/api/createTransfer', async (req, res) => {
+    const { nominal, accountNumber, method } = req.body;
+
+    if (!nominal || !accountNumber || !method) {
+        return res.status(400).json({ error: 'Nominal, Account Number, and Method are required.' });
+    }
+
+    try {
+        const transferResult = await createTransfer(nominal, accountNumber, method);
+        if (!transferResult || transferResult.status !== 'success') {
+            return res.status(500).json({ error: 'Failed to create transfer.' });
+        }
+        res.json(transferResult.data);
+    } catch (error) {
+        console.error('Error creating transfer:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await getStoreList();
+        if (!products || !products.data) {
+            return res.status(500).json({ error: 'Failed to fetch product list.' });
+        }
+        res.json(products.data);
+    } catch (error) {
+        console.error('Error fetching product list:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/createTransaction', async (req, res) => {
+    const { target, productCode } = req.body;
+
+    if (!target || !productCode) {
+        return res.status(400).json({ error: 'Target and Product Code are required.' });
+    }
+
+    try {
+        const transactionResult = await createTransaction(target, productCode);
+        if (!transactionResult || transactionResult.status !== 'success') {
+            return res.status(500).json({ error: 'Failed to create transaction.' });
+        }
+        res.json(transactionResult.data);
+    } catch (error) {
+        console.error('Error creating transaction:', error);
+        res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+// --- API Functions (from your original code) ---
+async function getDepositMethods() {
+    try {
+        const response = await fetch('https://forestapi.web.id/api/h2h/deposit/methods', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: API_KEY })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal mendapatkan metode deposit:', error);
+        return null;
+    }
 }
 
-// **PENTING: HANDLE ERROR DENGAN BAIK!**
-bot.on('polling_error', (error) => {
-    console.error("Error polling:", error);
-});
+async function createDeposit(nominal, method, phoneNumber = '') {
+    const DEPOSIT_URL = 'https://forestapi.web.id/api/h2h/deposit/create';
+    const reffId = `deposit-${Math.random().toString(36).substring(2, 10)}`;
+    try {
+        const response = await fetch(DEPOSIT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone_number: phoneNumber, nominal: nominal, method: method, reff_id: reffId, api_key: API_KEY })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal membuat deposit:', error);
+        return null;
+    }
+}
 
-// **PENTING: GUNAKAN WEBHOOK (DISARANKAN) BUKAN POLLING UNTUK APLIKASI PRODUKSI!**
-// Untuk menggunakan webhook, Anda perlu:
-// 1. Mendapatkan sertifikat SSL (misalnya dari Let's Encrypt)
-// 2. Mengatur webhook URL ke server Anda (menggunakan bot.setWebhook)
-// 3. Memproses pembaruan dari Telegram melalui endpoint webhook
+async function getTransferMethods() {
+    try {
+        const response = await fetch('https://forestapi.web.id/api/h2h/transfer/methods', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: 'forestapi', api_key: API_KEY })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal mendapatkan metode transfer:', error);
+        return null;
+    }
+}
 
-// Secara statis menghidangkan file HTML
-app.use(express.static(__dirname));
+async function createTransfer(nominal, accountNumber, method) {
+    try {
+        const response = await fetch('https://forestapi.web.id/api/h2h/transfer/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nominal: nominal, account_number: accountNumber, method: method, reff_id: `transfer-${Math.random().toString(36).substring(2, 10)}`, api_key: API_KEY })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal membuat permintaan transfer:', error);
+        return null;
+    }
+}
 
-// Jalankan server
+async function createTransaction(target, productCode) {
+    try {
+        const url = `https://forestapi.web.id/api/h2h/transaction/create?api_key=${API_KEY}&reff_id=transaction-${Math.random().toString(36).substring(2, 10)}&target=${target}&product_code=${productCode}`;
+        const response = await fetch(url, { method: 'GET' });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal membuat transaksi:', error);
+        return null;
+    }
+}
+
+async function getStoreList() {
+    try {
+        const response = await fetch('https://forestapi.web.id/api/h2h/price-list/all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profit_percent: "1", filter_status: "true", api_key: API_KEY })
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Gagal mendapatkan daftar produk:', error);
+        return null;
+    }
+}
+
 app.listen(port, () => {
-    console.log(`Server berjalan di http://localhost:${port}`);
-
-    // **HANYA UNTUK PENGEMBANGAN: SET WEBHOOK SECARA OTOMATIS (JANGAN LAKUKAN INI DI PRODUKSI!)**
-    //  bot.setWebhook('https://example.com/webhook'); // Ganti dengan URL webhook Anda
-    //  console.log("Webhook diatur (contoh pengembangan).");
+    console.log(`Server is running on port ${port}`);
 });
