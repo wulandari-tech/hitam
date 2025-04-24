@@ -346,7 +346,7 @@
                     resultText += `<div class="qr-code-container">
                                         <img src="${data.qr_image_url}" alt="QR Code" class="qr-code-image">
                                         <br>
-                                        <a href="${data.qr_image_url}" class="download-button" download="qris_code.png">Download QRIS</a>
+                                        <a href="#" class="download-button" onclick="downloadQRCode('${data.qr_image_url}')">Download QRIS</a>
                                     </div>`;
                 }
 
@@ -356,6 +356,25 @@
                 console.error('Error creating deposit:', error);
                 errorDisplay.textContent = error.message;
                 resultDiv.textContent = '';
+            }
+        }
+
+         // Function to download the QR code
+         async function downloadQRCode(imageUrl) {
+            try {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob(); // Get the image as a blob
+                const url = window.URL.createObjectURL(blob); // Create a URL for the blob
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'qris_code.png'; // Set the download name
+                document.body.appendChild(a); // Append to the document
+                a.click(); // Simulate a click
+                document.body.removeChild(a); // Remove the element
+                window.URL.revokeObjectURL(url); // Release the URL
+            } catch (error) {
+                console.error('Error downloading QR code:', error);
+                document.getElementById('errorDisplay').textContent = "Failed to download QR code.";
             }
         }
 
