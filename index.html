@@ -1,240 +1,497 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Wanzofc Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAYMU-WANZOFC</title>
     <style>
-        /* ... (Gaya CSS yang sama seperti sebelumnya) ... */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Modern and Stylish CSS */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #434343, #000000);
-            color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-            padding-top: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #121212; /* Dark background */
+            color: #fff; /* Light text */
         }
 
-        .login-box {
-            background: rgba(50, 50, 50, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px 30px;
-            border-radius: 15px;
+        .container {
+            width: 90%;
+            max-width: 800px; /* Increased max width for product list */
+            margin: 20px auto;
+            background-color: #1e1e1e; /* Darker container */
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            color: #bb86fc; /* Purple accent */
             margin-bottom: 20px;
         }
 
-        .login-box h1 {
-            font-size: 2.2em;
-            margin-bottom: 25px;
-            color: #ddd;
-            text-shadow: 0 0 8px #aaa;
+        .balance {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            color: #64ffda; /* Teal accent */
         }
 
-        .dashboard {
-            background: rgba(50, 50, 50, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 15px;
-            text-align: left;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            width: 80%;
-            max-width: 800px;
-            margin: 0 auto;
-            color: #eee;
-            display: none;
+        h2 {
+            color: #bb86fc;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
-        .dashboard h2 {
-            font-size: 1.8em;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9fa8da; /* Lighter text */
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
             margin-bottom: 20px;
-            color: #ddd;
-            text-shadow: 0 0 8px #aaa;
-        }
-
-        .dashboard p {
-            margin-bottom: 12px;
-            font-size: 1.1em;
-        }
-
-        #logout-button {
-            background-color: #d32f2f;
-            color: white;
             border: none;
-            padding: 12px 24px;
+            border-radius: 8px;
+            background-color: #2c2c2c; /* Darker input */
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 1em;
+            appearance: none; /* Remove default arrow */
+            -webkit-appearance: none;
+        }
+
+        /* Style the select arrow */
+        select::-ms-expand {
+            display: none; /* For IE11 */
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '>';
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%) rotate(90deg);
+            font-size: 1.2em;
+            color: #9fa8da;
+            pointer-events: none;
+        }
+
+        button {
+            background-color: #bb86fc; /* Purple button */
+            color: white;
+            padding: 14px 20px;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
-            margin-top: 20px;
-            font-size: 1em;
+            font-size: 1.1em;
+            width: 100%;
             transition: background-color 0.3s ease;
         }
 
-        #logout-button:hover {
-            background-color: #b71c1c;
+        button:hover {
+            background-color: #9c6ade;
         }
 
-        /* Gaya tambahan untuk fitur yang ditambahkan */
-        .dashboard ul {
-            list-style: none;
-            padding-left: 0;
-            margin-top: 20px;
+        #transactionResult,
+        #depositResult,
+        #transferResult {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #37474f;
+            border-radius: 8px;
+            background-color: #263238;
+            font-size: 1.1em;
         }
 
-        .dashboard li {
-            margin-bottom: 8px;
+        #errorDisplay {
+            color: #f44336; /* Red error */
+            margin-top: 10px;
         }
 
-        .dashboard a {
-            color: #bbdefb;
+        .back-button {
+            display: block;
+            margin-bottom: 20px;
+            color: #64b5f6; /* Light blue back button */
             text-decoration: none;
-            transition: color 0.3s ease;
+            font-size: 1.1em;
         }
 
-        .dashboard a:hover {
-            color: #64b5f6;
+        /* Product List Styles */
+        .product-list {
+            margin-top: 30px;
+            overflow-x: auto; /* Enable horizontal scrolling for large tables */
+        }
+
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .product-table th,
+        .product-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #37474f;
+        }
+
+        .product-table th {
+            background-color: #263238;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .product-table tbody tr:hover {
+            background-color: #37474f;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+              font-size: 1.5em;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="login-box">
-    <h1>Login Wanzofc</h1>
-    <script async src="https://telegram.org/js/telegram-widget.js?22"
-            data-telegram-login="Cyber_wanzofc_bot"
-            data-size="large"
-            data-onauth="onTelegramAuth(user)"
-            data-request-access="write">
-    </script>
-</div>
+    <div class="container">
+        <a href="#" class="back-button">← Back</a> <!-- Back button -->
+        <h1>PAYMU-WANZOFC</h1>
+        <div class="balance">Balance: Rp 373</div>
 
-<div class="dashboard" id="dashboard">
-    <h2>Selamat Datang!</h2>
-    <p><b>Nama Depan:</b> <span id="user-first-name"></span></p>
-    <p><b>Nama Belakang:</b> <span id="user-last-name"></span></p>
-    <p><b>Username:</b> <span id="user-username"></span></p>
-    <p><b>ID Telegram:</b> <span id="user-id"></span></p>
+        <!-- Deposit Section -->
+        <h2>Make a Deposit</h2>
+        <label for="depositNominal">Deposit Nominal</label>
+        <input type="number" id="depositNominal" name="depositNominal" placeholder="Enter Deposit Amount">
 
-    <!-- Fitur Tambahan  -->
-    <h3>Fitur Tambahan (Integrasi Lebih Lanjut)</h3>
-    <ul>
-        <li>
-            <a href="#" id="link-to-telegram-group">Gabung Grup Telegram Komunitas</a>
-        </li>
-        <li>
-            <a href="#" id="link-to-bot-interaction">Berinteraksi dengan Bot</a>
-        </li>
-        <li>
-            <a href="#" id="link-to-profile-settings">Pengaturan Profil</a>
-        </li>
-    </ul>
+        <div class="select-wrapper">
+            <label for="depositMethod">Deposit Method</label>
+            <select id="depositMethod" name="depositMethod">
+                <option value="">Loading Deposit Methods...</option>
+            </select>
+        </div>
+        <button onclick="createDeposit()">Create Deposit</button>
+        <div id="depositResult"></div>
 
-    <button id="logout-button">Logout</button>
-</div>
+        <!-- Transfer Section -->
+        <h2>Make a Transfer</h2>
+        <label for="transferNominal">Transfer Nominal</label>
+        <input type="number" id="transferNominal" name="transferNominal" placeholder="Enter Transfer Amount">
 
-<script>
-    const botToken = '7732562102:AAEH2ydv6d4q3AamrGoZaoo6ZdFcghQcf-A'; // **JANGAN SIMPAN TOKEN DI SINI DI PRODUKSI**
+        <label for="transferAccountNumber">Account Number</label>
+        <input type="text" id="transferAccountNumber" name="transferAccountNumber" placeholder="Enter Account Number">
 
-    function onTelegramAuth(user) {
-        document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('user-first-name').textContent = user.first_name;
-        document.getElementById('user-last-name').textContent = user.last_name || 'Tidak Ada';
-        document.getElementById('user-username').textContent = user.username || 'Tidak Ada';
-        document.getElementById('user-id').textContent = user.id;
-        document.querySelector('.login-box').style.display = 'none';
+        <div class="select-wrapper">
+            <label for="transferMethod">Transfer Method</label>
+            <select id="transferMethod" name="transferMethod">
+                <option value="">Loading Transfer Methods...</option>
+            </select>
+        </div>
+        <button onclick="createTransfer()">Create Transfer</button>
+        <div id="transferResult"></div>
 
-        localStorage.setItem('telegramUser', JSON.stringify(user));
+        <!-- Transaction Section -->
+        <h2>Create Transaction</h2>
+        <label for="target">Target (Phone Number)</label>
+        <input type="text" id="target" name="target" placeholder="Enter Target Phone Number">
 
-        // Kirim data user ke server (untuk diproses oleh bot)
-        sendUserDataToServer(user);
+        <div class="select-wrapper">
+            <label for="product">Select Product</label>
+            <select id="product" name="product">
+                <option value="">Loading Products...</option>
+            </select>
+        </div>
 
-    }
+        <button onclick="orderNow()">Order Now</button>
+        <div id="transactionResult"></div>
 
-    document.getElementById('logout-button').addEventListener('click', function () {
-        localStorage.removeItem('telegramUser');
-        document.querySelector('.login-box').style.display = 'block';
-        document.getElementById('dashboard').style.display = 'none';
-        location.reload();
-    });
+        <!-- Product List Section -->
+        <h2>Product List</h2>
+        <div class="product-list">
+            <table class="product-table" id="productListTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Provider</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Code</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Product rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
 
-    window.onload = function () {
-        const storedUser = localStorage.getItem('telegramUser');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            onTelegramAuth(user);
-        }
-    };
+        <div id="errorDisplay"></div>
+    </div>
 
-    // --- Fungsi-fungsi Tambahan ---
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDepositMethods();
+            loadTransferMethods();
+            loadProducts();
+            loadProductList(); // Load product list on page load
+        });
 
-    function sendUserDataToServer(user) {
-        fetch('/api/telegram-login', { // Endpoint server yang akan dibuat
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(user)
-        })
-            .then(response => {
+        // --- Deposit Functions ---
+        async function loadDepositMethods() {
+            try {
+                const response = await fetch('/api/depositMethods');
                 if (!response.ok) {
-                    throw new Error('Gagal mengirim data ke server.');
+                    throw new Error('Failed to load deposit methods');
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Data berhasil dikirim ke server:', data);
-                // Handle respon dari server (misalnya, pesan sukses)
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Handle error (misalnya, tampilkan pesan error kepada pengguna)
-            });
-    }
+                const methods = await response.json();
+                const select = document.getElementById('depositMethod');
+                select.innerHTML = ''; // Clear loading message
 
-    // Fungsi untuk mengarahkan ke grup Telegram (perlu URL grup yang benar)
-    document.getElementById('link-to-telegram-group').addEventListener('click', function(event) {
-        event.preventDefault();
-        const telegramGroupUrl = "https://t.me/ContohGrupTelegram"; // Ganti dengan URL grup Telegram Anda
-        window.open(telegramGroupUrl, '_blank');
-    });
+                methods.forEach(method => {
+                    const option = document.createElement('option');
+                    option.value = method.metode;
+                    option.textContent = `${method.name} (${method.metode})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading deposit methods:', error);
+                document.getElementById('errorDisplay').textContent = "Failed to load deposit methods. Please check the server.";
+            }
+        }
 
-    // Placeholder untuk interaksi bot (memerlukan logika server-side)
-    document.getElementById('link-to-bot-interaction').addEventListener('click', function(event) {
-        event.preventDefault();
-        // Kirim permintaan ke server untuk memulai interaksi dengan bot
-        fetch('/api/start-bot-interaction', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userId: localStorage.getItem('telegramUser') ? JSON.parse(localStorage.getItem('telegramUser')).id : null })
-        })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error("Gagal memulai interaksi bot:", error));
-    });
+        async function createDeposit() {
+            const nominal = document.getElementById('depositNominal').value;
+            const method = document.getElementById('depositMethod').value;
+            const resultDiv = document.getElementById('depositResult');
+            const errorDisplay = document.getElementById('errorDisplay');
 
-    // Placeholder untuk pengaturan profil (memerlukan logika server-side dan halaman pengaturan)
-    document.getElementById('link-to-profile-settings').addEventListener('click', function(event) {
-        event.preventDefault();
-        // Arahkan pengguna ke halaman pengaturan profil (yang akan berkomunikasi dengan server)
-        window.location.href = '/profile-settings'; // Ganti dengan URL yang benar
-    });
+            errorDisplay.textContent = '';
+            resultDiv.textContent = 'Processing...';
 
-</script>
+            try {
+                const response = await fetch('/api/createDeposit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nominal: nominal, method: method })
+                });
 
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to create deposit: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let resultText = '<b>Deposit Created Successfully!</b><br><br>';
+                resultText += `ID: ${data.id}<br>`;
+                resultText += `Nominal: ${data.nominal}<br>`;
+                resultText += `Fee: ${data.fee}<br>`;
+                resultText += `Total yang Didapatkan: ${data.get_balance}<br>`;
+                resultText += `Status: ${data.status}<br>`;
+
+                resultDiv.innerHTML = resultText;
+
+            } catch (error) {
+                console.error('Error creating deposit:', error);
+                errorDisplay.textContent = error.message;
+                resultDiv.textContent = '';
+            }
+        }
+
+        // --- Transfer Functions ---
+        async function loadTransferMethods() {
+            try {
+                const response = await fetch('/api/transferMethods');
+                if (!response.ok) {
+                    throw new Error('Failed to load transfer methods');
+                }
+                const methods = await response.json();
+                const select = document.getElementById('transferMethod');
+                select.innerHTML = ''; // Clear loading message
+
+                methods.forEach(method => {
+                    const option = document.createElement('option');
+                    option.value = method.bank_code;
+                    option.textContent = `${method.bank_name} (${method.bank_code})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading transfer methods:', error);
+                document.getElementById('errorDisplay').textContent = "Failed to load transfer methods. Please check the server.";
+            }
+        }
+
+        async function createTransfer() {
+            const nominal = document.getElementById('transferNominal').value;
+            const accountNumber = document.getElementById('transferAccountNumber').value;
+            const method = document.getElementById('transferMethod').value;
+            const resultDiv = document.getElementById('transferResult');
+            const errorDisplay = document.getElementById('errorDisplay');
+
+            errorDisplay.textContent = '';
+            resultDiv.textContent = 'Processing...';
+
+            try {
+                const response = await fetch('/api/createTransfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nominal: nominal, accountNumber: accountNumber, method: method })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to create transfer: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let resultText = '<b>Transfer Created Successfully!</b><br><br>';
+                resultText += `ID: ${data.id}<br>`;
+                resultText += `Reff ID: ${data.reff_id}<br>`;
+                resultText += `Nama Penerima: ${data.owner_name}<br>`;
+                resultText += `Nomor Rekening: ${data.destination_number}<br>`;
+                resultText += `Nominal: ${data.nominal}<br>`;
+                resultText += `Biaya: ${data.fee}<br>`;
+                resultText += `Total: ${data.total}<br>`;
+                resultText += `Status: ${data.status}<br>`;
+                resultText += `Tanggal: ${data.date}<br>`;
+
+                resultDiv.innerHTML = resultText;
+
+            } catch (error) {
+                console.error('Error creating transfer:', error);
+                errorDisplay.textContent = error.message;
+                resultDiv.textContent = '';
+            }
+        }
+
+        // --- Transaction Functions ---
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error('Failed to load products');
+                }
+                const products = await response.json();
+
+                // Populate Products
+                const productSelect = document.getElementById('product');
+                productSelect.innerHTML = ''; // Clear loading message
+
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.code;
+                    option.textContent = `${product.name} - ${product.formatted_price}`;
+                    productSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('errorDisplay').textContent = "Failed to load products. Please check the server.";
+            }
+        }
+
+        async function orderNow() {
+            const productCode = document.getElementById('product').value;
+            const target = document.getElementById('target').value; // Get target from the input field
+            const transactionResultDiv = document.getElementById('transactionResult');
+            const errorDisplay = document.getElementById('errorDisplay');
+
+            errorDisplay.textContent = '';
+            transactionResultDiv.textContent = 'Processing...';
+
+            if (!target) {
+                errorDisplay.textContent = 'Please enter a target phone number.';
+                transactionResultDiv.textContent = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/createTransaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ target: target, productCode: productCode })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Failed to create transaction: ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                let resultText = '<b>Transaction Created Successfully!</b><br><br>';
+                resultText += `ID: ${data.id}<br>`;
+                resultText += `Reff ID: ${data.reff_id}<br>`;
+                resultText += `Nama Produk: ${data.name}<br>`;
+                resultText += `Kode Produk: ${data.code}<br>`;
+                resultText += `Target: ${data.target}<br>`;
+                resultText += `Harga: ${data.price}<br>`;
+                resultText += `Status: ${data.status}<br>`;
+                resultText += `Tanggal: ${data.date}<br>`;
+
+                transactionResultDiv.innerHTML = resultText;
+
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+                errorDisplay.textContent = error.message;
+                transactionResultDiv.textContent = '';
+            }
+        }
+
+        // --- Product List Functions ---
+        async function loadProductList() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) {
+                    throw new Error('Failed to load product list');
+                }
+                const products = await response.json();
+
+                const tableBody = document.getElementById('productListTable').querySelector('tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                products.forEach(product => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = product.name;
+                    row.insertCell().textContent = product.category;
+                    row.insertCell().textContent = product.provider;
+                    row.insertCell().textContent = product.type;
+                    row.insertCell().textContent = product.formatted_price;
+                    row.insertCell().textContent = product.code;
+                });
+
+            } catch (error) {
+                console.error('Error loading product list:', error);
+                document.getElementById('errorDisplay').textContent = "Failed to load product list. Please check the server.";
+            }
+        }
+    </script>
 </body>
 </html>
